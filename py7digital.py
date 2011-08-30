@@ -139,6 +139,7 @@ class Artist(_BaseObject):
         self._top_tracks = None
         self._tags = None
         self._recommended_albums = None
+        self._similar = None
     
     def __repr__(self):
        return self.get_name().encode('utf8')
@@ -221,6 +222,18 @@ class Artist(_BaseObject):
             results.append(_get_album(node, _get_artist(node.getElementsByTagName('artist')[0])))
         self._recommended_albums = results
         return self._recommended_albums
+
+    def get_similar(self, pageSize=10):
+        """ Returns a list of similar artists based on the seed artist """
+        if self._similar is not None: return self._similar
+
+        results = []
+        xml = self._request('/artist/similar', True, {'artistid': self.id, 'pageSize': str(pageSize)}) # TODO if country is set gives different results
+        
+        for node in xml.getElementsByTagName('artist'): 
+            results.append(_get_artist(node))            
+        self._similar = results
+        return self._similar
 
     def get_top_tracks(self, pageSize=10):
         """ Returns the top tracks of an artist """
